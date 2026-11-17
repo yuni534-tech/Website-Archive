@@ -1,26 +1,663 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="ko" data-theme="light">
 <head>
-    <title>마전고</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js"defer></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WA — Website Archive</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      color-scheme: light;
+      --bg: #fff;
+      --surface: #fff;
+      --soft: #f7f8f5;
+      --text: #263129;
+      --muted: #7d887f;
+      --line: #e7ebe6;
+      --green: #55765e;
+      --green-soft: #edf4ed;
+      --wood: #a88965;
+      --shadow: 0 4px 18px #233b2a0c;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #171b17;
+      --surface: #202720;
+      --soft: #273128;
+      --text: #eff4ed;
+      --muted: #a5b0a5;
+      --line: #39443a;
+      --green: #a6c4a5;
+      --green-soft: #2a382c;
+      --wood: #cfb18a;
+      --shadow: 0 4px 18px #0004;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", "Malgun Gothic", sans-serif;
+    }
+
+    button, input { font: inherit; }
+
+    .topbar {
+      height: 62px;
+      padding: 0 max(calc((100vw - 1240px) / 2), 24px);
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--text);
+      font-size: 17px;
+      font-weight: 800;
+      text-decoration: none;
+      letter-spacing: -1px;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px 8px 8px 2px;
+      background: var(--green);
+      color: white;
+      font-family: Georgia, serif;
+    }
+
+    .top-search {
+      width: min(390px, 38vw);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-left: 25px;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--soft);
+      color: var(--muted);
+    }
+
+    .top-search input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+    }
+
+    .write-button {
+      margin-left: auto;
+      padding: 9px 13px;
+      border: 0;
+      border-radius: 5px;
+      background: var(--green);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .icon-button {
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--green);
+      cursor: pointer;
+    }
+
+    .page {
+      position: relative;
+      max-width: 1240px;
+      margin: auto;
+      padding: 28px 24px 70px;
+    }
+
+    /* 은은한 잎사귀와 나이테 느낌의 장식 */
+    .page::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      top: 8px;
+      right: -20px;
+      width: 280px;
+      height: 220px;
+      border-radius: 42% 58% 58% 42%;
+      background:
+        radial-gradient(ellipse at 60% 35%, #e9f0e5 0 12%, transparent 13%),
+        radial-gradient(ellipse at 42% 60%, #f0eee6 0 18%, transparent 19%);
+      opacity: .7;
+      transform: rotate(-16deg);
+    }
+
+    .welcome {
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 22px;
+      padding: 25px 30px;
+      border: 1px solid #e9eee7;
+      border-radius: 9px;
+      background:
+        radial-gradient(ellipse at 92% 20%, #e5eee2 0, transparent 30%),
+        linear-gradient(110deg, #fff, #fbfcf9);
+      box-shadow: var(--shadow);
+    }
+
+    .welcome::after {
+      content: "❧";
+      position: absolute;
+      right: 35px;
+      top: -28px;
+      color: #dce8d9;
+      font: 140px Georgia, serif;
+      transform: rotate(-25deg);
+    }
+
+    .welcome-label {
+      color: var(--green);
+      font: 11px monospace;
+      letter-spacing: 1px;
+    }
+
+    .welcome h1 {
+      position: relative;
+      z-index: 1;
+      margin: 9px 0 5px;
+      font-size: 24px;
+      letter-spacing: -1px;
+    }
+
+    .welcome p {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr) 245px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .side-menu {
+      padding: 14px 10px;
+      position: sticky;
+      top: 15px;
+    }
+
+    .side-title {
+      margin: 3px 9px 10px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .category {
+      width: 100%;
+      padding: 9px;
+      display: flex;
+      justify-content: space-between;
+      border: 0;
+      border-radius: 5px;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .category:hover, .category.active {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .category small { color: var(--muted); }
+
+    .feed { min-width: 0; }
+
+    .feed-tabs {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      padding: 0 4px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .feed-tabs button {
+      padding: 7px 0;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .feed-tabs button.active {
+      border-color: var(--green);
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .post {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 145px;
+      gap: 15px;
+      margin-top: 12px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      transition: border-color .15s, transform .15s;
+    }
+
+    .post:hover {
+      transform: translateY(-1px);
+      border-color: #bdcdbd;
+    }
+
+    .post-category {
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .post h2 {
+      margin: 7px 0;
+      font-size: 16px;
+      letter-spacing: -.3px;
+    }
+
+    .post-desc {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .post-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .post-photo {
+      width: 145px;
+      height: 112px;
+      border-radius: 5px;
+      background: var(--soft);
+      object-fit: cover;
+    }
+
+    .right-column { display: grid; gap: 14px; }
+
+    .right-box { padding: 15px; }
+
+    .right-box h3 {
+      margin: 0 0 12px;
+      font-size: 14px;
+    }
+
+    .popular-item {
+      display: flex;
+      gap: 9px;
+      padding: 9px 0;
+      border-top: 1px solid var(--line);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .popular-item b {
+      color: var(--wood);
+      font: 12px monospace;
+    }
+
+    .tag-cloud { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .tag-cloud span {
+      padding: 5px 8px;
+      border-radius: 4px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-size: 11px;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 5;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: #18201866;
+    }
+
+    .overlay[hidden] { display: none; }
+
+    .settings {
+      width: min(100%, 400px);
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--surface);
+      box-shadow: 0 15px 55px #17231733;
+    }
+
+    .settings-head, .choices {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 9px;
+    }
+
+    .settings-head { border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+    .settings-head h2 { margin: 0; font-size: 19px; }
+
+    .close {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 23px;
+      cursor: pointer;
+    }
+
+    .setting { padding: 16px 0; border-bottom: 1px solid var(--line); }
+    .setting h3 { margin: 0 0 5px; font-size: 14px; }
+    .setting p { margin: 0 0 10px; color: var(--muted); font-size: 12px; }
+
+    .choice {
+      flex: 1;
+      padding: 9px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .choice.selected {
+      border-color: var(--green);
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .done {
+      width: 100%;
+      margin-top: 16px;
+      padding: 10px;
+      border: 0;
+      border-radius: 5px;
+      background: var(--green);
+      color: white;
+      cursor: pointer;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 8;
+      bottom: 20px;
+      left: 50%;
+      padding: 11px 15px;
+      transform: translateX(-50%);
+      border-radius: 5px;
+      background: var(--text);
+      color: var(--bg);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s;
+    }
+
+    .toast.show { opacity: 1; }
+
+    @media (max-width: 950px) {
+      .layout { grid-template-columns: 160px minmax(0, 1fr); }
+      .right-column { display: none; }
+    }
+
+    @media (max-width: 650px) {
+      .topbar { padding: 0 12px; gap: 10px; }
+      .top-search { margin-left: 5px; width: auto; flex: 1; }
+      .write-button { padding: 8px; font-size: 12px; }
+      .page { padding: 16px 12px 45px; }
+      .welcome { padding: 20px; }
+      .layout { display: block; }
+      .side-menu { position: static; display: flex; gap: 5px; overflow-x: auto; margin-bottom: 13px; }
+      .side-title { display: none; }
+      .category { width: auto; white-space: nowrap; }
+      .category small { display: none; }
+      .post { grid-template-columns: minmax(0, 1fr) 100px; gap: 10px; padding: 11px; }
+      .post-photo { width: 100px; height: 90px; }
+      .post h2 { font-size: 14px; }
+      .post-desc { font-size: 11px; }
+    }
+  </style>
 </head>
 <body>
-    <h1 class="blue" id="title">flask 실습</h1>
-    <button onclick="changeTitle()">제목 변경</button>
-    
-    <hr>
+  <header class="topbar">
+    <a class="brand" href="#">
+      <span class="brand-mark">W</span>
+      <span>WA <small>Website Archive</small></span>
+    </a>
 
-    <h2>POST 요청 실습 </h2>
-    <form action="/submit" method="POST">
-        <input type="text" name="name">
-        <button type="submit">전송</button>>
-    </form>
+    <label class="top-search">
+      ⌕ <input id="search" placeholder="사이트나 게시글 검색">
+    </label>
 
-    <hr>
+    <button class="write-button" onclick="message('글쓰기 화면은 다음 단계에서 만들게요.')">
+      ＋ 글쓰기
+    </button>
+    <button class="icon-button" id="open-settings" title="설정">⚙</button>
+  </header>
 
-    <h2>JavaScript fetch실습</h2>
-    <button onclick = "hello()">서버에 요청하기</button>
-    <p id="result"></p>
+  <main class="page">
+    <section class="welcome">
+      <div class="welcome-label">WA COMMUNITY · 01</div>
+      <h1 data-ko="만든 웹사이트를 나누고, 함께 발견해요."
+          data-en="Share what you made. Find something new.">
+        만든 웹사이트를 나누고, 함께 발견해요.
+      </h1>
+      <p data-ko="좋아하는 웹을 소개하고 사람들의 이야기를 들어 보세요."
+         data-en="Showcase your website and hear what people think.">
+        좋아하는 웹을 소개하고 사람들의 이야기를 들어 보세요.
+      </p>
+    </section>
+
+    <div class="layout">
+      <aside class="side-menu box">
+        <div class="side-title">게시판</div>
+        <button class="category active" data-category="전체">🌿 전체 <small>128</small></button>
+        <button class="category" data-category="디자인">🎨 디자인 <small>32</small></button>
+        <button class="category" data-category="게임">🎮 게임 <small>18</small></button>
+        <button class="category" data-category="정보">📚 정보 <small>27</small></button>
+        <button class="category" data-category="음악">♫ 음악 <small>14</small></button>
+        <button class="category" data-category="기타">☘ 기타 <small>37</small></button>
+      </aside>
+
+      <section class="feed">
+        <div class="feed-tabs">
+          <button class="active" data-sort="latest">최신글</button>
+          <button data-sort="popular">인기글</button>
+        </div>
+        <div id="posts"></div>
+      </section>
+
+      <aside class="right-column">
+        <section class="right-box box">
+          <h3>🔥 이번 주 인기</h3>
+          <div class="popular-item"><b>01</b><span>처음 만든 게임 웹사이트 구경해 주세요</span></div>
+          <div class="popular-item"><b>02</b><span>작은 책방을 소개하는 페이지</span></div>
+          <div class="popular-item"><b>03</b><span>나만의 공부 기록 도구</span></div>
+        </section>
+        <section class="right-box box">
+          <h3>오늘의 태그</h3>
+          <div class="tag-cloud">
+            <span>#포트폴리오</span><span>#게임</span>
+            <span>#개인홈페이지</span><span>#공부</span>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <div class="overlay" id="overlay" hidden>
+    <section class="settings" role="dialog" aria-modal="true">
+      <div class="settings-head">
+        <h2 data-ko="화면 설정" data-en="Display settings">화면 설정</h2>
+        <button class="close" id="close">×</button>
+      </div>
+
+      <div class="setting">
+        <h3 data-ko="언어" data-en="Language">언어</h3>
+        <p data-ko="화면에 표시할 언어를 선택하세요."
+           data-en="Choose your display language.">화면에 표시할 언어를 선택하세요.</p>
+        <div class="choices">
+          <button class="choice selected" data-language="ko">한국어</button>
+          <button class="choice" data-language="en">English</button>
+        </div>
+      </div>
+
+      <div class="setting">
+        <h3 data-ko="화면 밝기" data-en="Appearance">화면 밝기</h3>
+        <p data-ko="원하는 화면 색상을 선택하세요."
+           data-en="Choose the appearance you prefer.">원하는 화면 색상을 선택하세요.</p>
+        <div class="choices">
+          <button class="choice selected" data-theme="light">밝게</button>
+          <button class="choice" data-theme="dark">어둡게</button>
+        </div>
+      </div>
+
+      <button class="done" id="done" data-ko="완료" data-en="Done">완료</button>
+    </section>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const posts = [
+      {title:"처음 만든 작은 게임 사이트예요", category:"게임", author:"mooni", time:"12분 전", replies:8, rating:"4.8", image:"photo-1550745165-9bc0b252726f", desc:"직접 만든 미니게임들을 한곳에 모아봤어요. 편하게 구경하고 의견 남겨 주세요."},
+      {title:"동네 독립 책방을 소개하는 페이지", category:"디자인", author:"sora", time:"38분 전", replies:5, rating:"4.6", image:"photo-1507842217343-583bb7270b66", desc:"책방의 분위기와 새로 들어온 책을 소개하는 작은 웹사이트입니다."},
+      {title:"공부 기록을 모아 보는 웹 도구", category:"정보", author:"jun", time:"1시간 전", replies:12, rating:"4.9", image:"photo-1455390582262-044cdead277a", desc:"매일 공부한 내용을 달력에 기록하고 한눈에 볼 수 있도록 만들었습니다."},
+      {title:"주말에 만든 음악 플레이어", category:"음악", author:"haru", time:"2시간 전", replies:3, rating:"4.4", image:"photo-1516280440614-37939bbacd81", desc:"좋아하는 곡과 재생목록을 담아 보는 연습용 페이지예요."}
+    ];
+
+    let activeCategory = "전체";
+    let activeSort = "latest";
+    const postsArea = document.querySelector("#posts");
+
+    function renderPosts() {
+      const query = document.querySelector("#search").value.toLowerCase();
+
+      let list = posts.filter(post => {
+        const categoryMatch =
+          activeCategory === "전체" || post.category === activeCategory;
+        const text = (post.title + " " + post.desc + " " + post.category).toLowerCase();
+        return categoryMatch && text.includes(query);
+      });
+
+      if (activeSort === "popular") {
+        list = [...list].sort((a, b) => b.replies - a.replies);
+      }
+
+      postsArea.innerHTML = list.map(post =>
+        '<article class="post">' +
+          '<div>' +
+            '<div class="post-category">[' + post.category + ']</div>' +
+            '<h2>' + post.title + '</h2>' +
+            '<p class="post-desc">' + post.desc + '</p>' +
+            '<div class="post-meta"><span>' + post.author + '</span><span>' +
+              post.time + '</span><span>💬 ' + post.replies + '</span><span>★ ' +
+              post.rating + '</span></div>' +
+          '</div>' +
+          '<img class="post-photo" alt="게시글 사진 미리보기" loading="lazy" src="https://images.unsplash.com/' +
+            post.image + '?auto=format&fit=crop&w=500&q=80">' +
+        '</article>'
+      ).join("");
+    }
+
+    document.querySelector("#search").addEventListener("input", renderPosts);
+
+    document.querySelectorAll(".category").forEach(button => {
+      button.onclick = () => {
+        activeCategory = button.dataset.category;
+        document.querySelectorAll(".category").forEach(item =>
+          item.classList.toggle("active", item === button)
+        );
+        renderPosts();
+      };
+    });
+
+    document.querySelectorAll("[data-sort]").forEach(button => {
+      button.onclick = () => {
+        activeSort = button.dataset.sort;
+        document.querySelectorAll("[data-sort]").forEach(item =>
+          item.classList.toggle("active", item === button)
+        );
+        renderPosts();
+      };
+    });
+
+    const overlay = document.querySelector("#overlay");
+    document.querySelector("#open-settings").onclick = () => overlay.hidden = false;
+    document.querySelector("#close").onclick = () => overlay.hidden = true;
+    document.querySelector("#done").onclick = () => overlay.hidden = true;
+    overlay.onclick = event => {
+      if (event.target === overlay) overlay.hidden = true;
+    };
+
+    document.querySelectorAll("[data-language]").forEach(button => {
+      button.onclick = () => {
+        const language = button.dataset.language;
+        document.documentElement.lang = language;
+        document.querySelectorAll("[data-ko][data-en]").forEach(item => {
+          item.textContent = item.dataset[language];
+        });
+        document.querySelectorAll("[data-language]").forEach(item =>
+          item.classList.toggle("selected", item === button)
+        );
+      };
+    });
+
+    document.querySelectorAll("[data-theme]").forEach(button => {
+      button.onclick = () => {
+        document.documentElement.dataset.theme = button.dataset.theme;
+        document.querySelectorAll("[data-theme]").forEach(item =>
+          item.classList.toggle("selected", item === button)
+        );
+      };
+    });
+
+    function message(text) {
+      const toast = document.querySelector("#toast");
+      toast.textContent = text;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    renderPosts();
+  </script>
 </body>
 </html>
